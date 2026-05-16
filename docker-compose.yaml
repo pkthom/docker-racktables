@@ -1,0 +1,29 @@
+services:
+  # データベース（変更なし、パスワードもそのままです）
+  racktables-db:
+    image: mariadb:10.11
+    container_name: racktables-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: racktables
+      MYSQL_USER: racktables_user
+      MYSQL_PASSWORD: pass
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+
+  # RackTables 本体（手元のDockerfileからビルドするように変更）
+  racktables-web:
+    build: .
+    container_name: racktables-web
+    ports:
+      - "8080:80"
+    volumes:
+      - racktables_data:/var/www/html  # 設定ファイル（secret.php）も含めて丸ごと永続化
+    depends_on:
+      - racktables-db
+    restart: always
+
+volumes:
+  db_data:
+  racktables_data:
